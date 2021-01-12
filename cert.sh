@@ -2,6 +2,12 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+DOCKER_COMPOSE_FILE="docker-compose.yml"
+DOCKER_TEMPLATE_FILE="template-docker-compose.yml"
+TRAEFIK_COMPOSE_FILE="traefik-compose.yml"
+TRAEFIK_TEMPLATE_FILE="template-traefik-compose.yml"
+
+
 # Creates a self-signed wildcard cert for local test and dev
 
 # EXAMPLE: ./cert.sh something.com
@@ -30,3 +36,12 @@ openssl req \
 
 cat "$DOMAIN_NAME.crt" "$DOMAIN_NAME.key" > "$DOMAIN_NAME.pem"
 
+# Update compose file(s) (if needed).
+
+if [[ ! -f $DOCKER_COMPOSE_FILE ]]; then
+  cat $DOCKER_TEMPLATE_FILE | sed 's/_DOMAIN_NAME_/'${DOMAIN_NAME}'/g' > $DOCKER_COMPOSE_FILE
+fi
+
+if [[ ! -f $TRAEFIK_COMPOSE_FILE ]]; then
+  cat $TRAEFIK_TEMPLATE_FILE | sed 's/_DOMAIN_NAME_/'${DOMAIN_NAME}'/g' > $TRAEFIK_COMPOSE_FILE
+fi
